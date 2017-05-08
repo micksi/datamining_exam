@@ -1,5 +1,7 @@
+import matplotlib
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
-import matplotlib as mpl
 
 
 def main():
@@ -13,13 +15,25 @@ def main():
     members
 
     '''
-    pd.options.display.float_format = '{:20,.2f}'.format
-    data = pd.io.parsers.read_csv('../raw/anime.csv')
+    matplotlib.style.use('ggplot')
 
-    # number_of_unique_genres(data)
+    pd.options.display.float_format = '{:20,.2f}'.format
+    datarating = pd.io.parsers.read_csv('../raw/rating.csv')
+    ratingVal = datarating.loc[(datarating['rating']
+                               > 5) || (datarating['rating'])]['user_id'].value_counts().to_frame()
+    # print ratingVal.to_frame().columns
+    print ratingVal.describe()
+
+    data = pd.io.parsers.read_csv('../raw/anime.csv')
+    number_of_unique_genres(data)
     number_of_types(data)
     rating(data, types=['TV', 'OVA', 'Movie', 'Special', 'ONA', 'Music'])
-    members(data)
+    members(data, plot=True)
+
+    print '----'
+    print data.loc[(data['type'] == 'OVA')]['episodes'].value_counts()
+
+    plt.show()
 
 
 def number_of_types(data, plot=False):
@@ -32,6 +46,16 @@ def number_of_types(data, plot=False):
 def members(data, plot=False):
     print '\nMembers:'
     print data['members'].describe(include='all')
+
+    if plot:
+        print "plotting..."
+        members = data['members'].cumsum()
+
+        fig, axes = plt.subplots(nrows=2)
+
+        data['members'].quantile(np.arange(0.0, 1.0, 0.01)).plot(
+            kind="line", ax=axes[0])
+        data['members'].plot(kind="box", logy=True, ax=axes[1])
 
 
 def rating(data, types=None, plot=False):
