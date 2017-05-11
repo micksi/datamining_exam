@@ -1,5 +1,6 @@
 import matplotlib
 import matplotlib.pyplot as plt
+import matplotlib.mlab as mlab
 import numpy as np
 import pandas as pd
 
@@ -16,29 +17,49 @@ def main():
 
     '''
     matplotlib.style.use('ggplot')
-
     pd.options.display.float_format = '{:20,.2f}'.format
-    datarating = pd.io.parsers.read_csv('../raw/rating.csv')
-    ratingVal = datarating.loc[(datarating['rating']
-                               > 5) || (datarating['rating'])]['user_id'].value_counts().to_frame()
+
+    data_rating = pd.io.parsers.read_csv('../raw/rating.csv')
+    data_movies = pd.io.parsers.read_csv('../raw/anime.csv')
+
+    # ratingVal = datarating.loc[(datarating['rating']
+    #                             > 5) | (datarating['rating'])]['user_id'].value_counts().to_frame()
     # print ratingVal.to_frame().columns
-    print ratingVal.describe()
+    # print ratingVal.describe()
 
-    data = pd.io.parsers.read_csv('../raw/anime.csv')
-    number_of_unique_genres(data)
-    number_of_types(data)
-    rating(data, types=['TV', 'OVA', 'Movie', 'Special', 'ONA', 'Music'])
-    members(data, plot=True)
+    # graphs of normal distributions
+    show_users_and_movies(data_rating)
+    show_movie_ratings(data_movies)
 
-    print '----'
-    print data.loc[(data['type'] == 'OVA')]['episodes'].value_counts()
+    # number_of_unique_genres(data)
+    # number_of_types(data)
+    # rating(data, types=['TV', 'OVA', 'Movie', 'Special', 'ONA', 'Music'])
+    # members(data, plot=True)
+
+    # print '----'
+    # print data.loc[(data['type'] == 'OVA')]['episodes'].value_counts()
 
     plt.show()
 
 
+def show_movie_ratings(movies):
+    plt.figure()
+    movies['rating'].plot(kind="hist", bins=40)
+
+
+def show_users_and_movies(rating):
+    describe = rating['user_id'].value_counts().describe()
+    print describe['mean']
+    rating_user = rating.groupby('user_id')
+    users_movies = rating_user.size().to_frame().sort_values(by=0)[:-1]
+    plt.figure()
+    users_movies.plot(kind="hist", bins=100)
+
+
 def number_of_types(data, plot=False):
     print "\nDescribe: "
-    print data['type'].describe(include="all")
+    typeDescription = data['type'].describe(include="all")
+    print typeDescription
     print "\nType count: "
     print data[data.columns[3]].value_counts()
 
@@ -50,8 +71,6 @@ def members(data, plot=False):
     if plot:
         print "plotting..."
         members = data['members'].cumsum()
-
-        fig, axes = plt.subplots(nrows=2)
 
         data['members'].quantile(np.arange(0.0, 1.0, 0.01)).plot(
             kind="line", ax=axes[0])
