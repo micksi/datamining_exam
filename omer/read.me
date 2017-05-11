@@ -1,0 +1,78 @@
+Content based filtering
+
+For user_id=1, the default one now, gives some recommenedations, but some recomm. animes doesn't make sense. The alg. recommends: 
+4546  Music, 
+but the user has watched only 1 anime with genre Music.
+These are the results for user_id = 1:
+
+Our recommendations: 
+       anime_id                                           name  \
+3571       4532                      Taiyou no Yuusha Fighbird   
+1410       6783        ef: A Tale of Memories. - Recollections   
+4429        497              Yami to Boushi to Hon no Tabibito   
+1042      14123  Pokemon Black and White 2: Introduction Movie   
+1401      12149                                        AKB0048   
+4395       5945                                Element Hunters   
+10752     33758                                     Wu Geng Ji   
+4073      25939              Mahou Shoujo Lyrical Nanoha ViVid   
+4546       6533                                Atarashii Sekai   
+2115      32245                                     Kuromukuro   
+
+                                                         genre  
+3571                                     Action, Mecha, Sci-Fi  
+1410                                   Drama, Mystery, Romance  
+4429      Adventure, Ecchi, Fantasy, Magic, Mystery, Shoujo Ai  
+1042                                     Action, Fantasy, Kids  
+1401                                             Music, Sci-Fi  
+4395                                           Sci-Fi, Shounen  
+10752  Action, Fantasy, Historical, Martial Arts, Supernatural  
+4073                                  Action, Adventure, Magic  
+4546                                                     Music  
+2115                                     Action, Mecha, Sci-Fi  
+
+
+User profile (non-normalized):
+user_id         1.0
+Action         75.0
+Adventure      15.0
+Cars            0.0
+Comedy         97.0
+Dementia        0.0
+Demons         14.0
+Drama          29.0
+Ecchi          65.0
+Fantasy        46.0
+Game            6.0
+Harem          68.0
+Hentai          0.0
+Historical      3.0
+Horror          7.0
+Josei           0.0
+Kids            0.0
+Magic          17.0
+Martial Arts    5.0
+Mecha           9.0
+Military        1.0
+Music           1.0
+Mystery         7.0
+Parody          2.0
+Police          0.0
+Psychological   6.0
+Romance        83.0
+Samurai         0.0
+School         72.0
+Sci-Fi         27.0
+Seinen         18.0
+Shoujo          0.0
+Shoujo Ai       3.0
+Shounen        40.0
+Shounen Ai      0.0
+Slice of Life   7.0
+Space           0.0
+Sports          1.0
+Super Power    15.0
+Supernatural   59.0
+Thriller        0.0
+Vampire         6.0
+Yaoi            0.0
+Yuri            0.0
