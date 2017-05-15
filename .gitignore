@@ -20,6 +20,8 @@ lib64/
 parts/
 sdist/
 var/
+.vscode/
+
 *.egg-info/
 .installed.cfg
 *.egg
