@@ -71,13 +71,15 @@ def get_userids_by_indices(indices, df_user_prof_norm):
 def get_collaborative_recommendations_per_user(user_id, k, df_user_prof_norm, df_rating):
 
     # find closest k user profiles
+    start_kNN_duration = time.time()
     nbrs = NearestNeighbors(n_neighbors=k, algorithm='ball_tree').fit(df_user_prof_norm.drop(['user_id', 'rating', 'genre_count'], axis=1))
     user_prof = df_user_prof_norm[df_user_prof_norm['user_id'] == user_id]
     user_prof = user_prof.drop(['user_id', 'rating', 'genre_count'], axis=1)
 
     # Get closest neighbours
     distances, indices = nbrs.kneighbors(user_prof)
-    print("Closest neighbours identified!")
+    kNN_duration = time.time() - start_kNN_duration
+    print("Closest neighbours identified in %s seconds!" % kNN_duration)
 
     # get user_ids
     uids = get_userids_by_indices(indices[0], df_user_prof_norm)
@@ -100,7 +102,7 @@ def get_collaborative_recommendations_per_user(user_id, k, df_user_prof_norm, df
     target_user_animes = data[0].get_metas(str).keys()
 
     # Drop the user's data from the transactions list
-    data = data.get_items(range(1,len(data)))
+    data = data.get_items(range(1, len(data)))
 
     # Generate recommendation rules
     starting_time = time.time()
@@ -111,7 +113,16 @@ def get_collaborative_recommendations_per_user(user_id, k, df_user_prof_norm, df
         try:
             rules = Orange.associate.AssociationRulesSparseInducer(data, support=support_threshold, confidence=confidence_threshold,
                                                                    max_item_sets=100000)
-            rulesOK = True
+            print(len(rules))
+            # Test for the number of generated rules
+            if len(rules) > 100000:
+                print(support_threshold, confidence_threshold)
+                if confidence_threshold == 1:
+                    support_threshold += 0.1
+                else:
+                    confidence_threshold += 0.1
+            else:
+                rulesOK = True
         except:
             print(support_threshold, confidence_threshold)
             if confidence_threshold == 1:
@@ -120,7 +131,6 @@ def get_collaborative_recommendations_per_user(user_id, k, df_user_prof_norm, df
                 confidence_threshold += 0.1
 
     # print "%4s\t %4s  %s %s" % ("AnimeId", "Lift", "Support", "Conf")
-
     recommendations = {}
     for r in rules:
 
@@ -136,6 +146,7 @@ def get_collaborative_recommendations_per_user(user_id, k, df_user_prof_norm, df
                     recommendations[r.n_left].append(r)
                     # print "%4.2f %4.4f %s %s" % (r.support, r.confidence, r, r.lift)
 
+    print("We found %s potential rules! Let's check them out!" % len(rules))
     user_recommendations = []
     for i, r in recommendations.iteritems():
         recommendations[i].sort(key=lambda x: (x.lift, x.support, x.confidence), reverse=True)
@@ -152,7 +163,7 @@ def get_collaborative_recommendations_per_user(user_id, k, df_user_prof_norm, df
             if len(user_recommendations) == 10:
                 break
     duration = time.time() - starting_time
-    print("Rules found in %s !" % duration)
+    print("Rules found in %s seconds!" % duration)
     return user_recommendations
     # Orange.associate.AssociationRulesSparseInducer.get_itemsets(rules)
 
@@ -173,7 +184,7 @@ recommendations = {}
 
 with open('collaborative.csv', 'ab') as csv_file:
     writer = csv.writer(csv_file)
-    for i in users_ids[30:35]:
+    for i in users_ids[81:83]:
         print ("Results for user %4d\t " % (i))
         rec = get_collaborative_recommendations_per_user(user_id=i, k=11, df_user_prof_norm=df_user_prof_norm, df_rating=df_rating)
         recommendations[i] = rec
