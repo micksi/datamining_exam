@@ -88,6 +88,8 @@ def get_collaborative_recommendations_per_user(user_id, k, df_user_prof_norm, df
     u_animes = []
     for uid in uids:
         u_animes.append(df_rating[df_rating['user_id'] == uid]['anime_id'].tolist())
+        # print(len(df_rating[df_rating['user_id'] == uid]['anime_id'].tolist()))
+
     with open('anime_trans.basket', 'wb') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerows(u_animes)
@@ -115,6 +117,7 @@ def get_collaborative_recommendations_per_user(user_id, k, df_user_prof_norm, df
 
     while rulesOK is False and correct_support >= support_threshold and correct_confidence >= confidence_threshold:
         try:
+            # print(correct_support, correct_confidence)
             rules = Orange.associate.AssociationRulesSparseInducer(data, support=correct_support, confidence=correct_confidence,
                                                                    max_item_sets=100000)
             # Test for the number of generated rules
@@ -189,7 +192,7 @@ recommendations = {}
 
 with open('collaborativeTest.csv', 'ab') as csv_file:
     writer = csv.writer(csv_file)
-    for i in users_ids[200:500]:
+    for i in users_ids[1000:1001]:
         print ("Results for user %4d\t " % (i))
         rec = get_collaborative_recommendations_per_user(user_id=i, k=11, df_user_prof_norm=df_user_prof_norm, df_rating=df_rating)
         recommendations[i] = rec
