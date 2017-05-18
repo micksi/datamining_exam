@@ -155,11 +155,11 @@ final_normalized.head(5)
 
 usdf = pd.DataFrame()
 
-with open('content_recommendations.csv', 'ab') as file:
+with open('content_recommendations_no_rating.csv', 'ab') as file:
     writer = csv.writer(file)
     for idx in range(0, 2000):
         distances, indices, us = get_n_closest_users(
-            final_normalized.drop([], axis=1).iloc[idx], 10, True)
+            final_normalized.drop(['rating'], axis=1).iloc[idx], 10, False)
 
         # usdf = usdf.append(final_normalized.iloc[idx], ignore_index=True)
         # test_movies = test_rating.loc[test_rating['user_id']
