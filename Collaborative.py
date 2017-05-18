@@ -106,31 +106,35 @@ def get_collaborative_recommendations_per_user(user_id, k, df_user_prof_norm, df
 
     # Generate recommendation rules
     starting_time = time.time()
-    support_threshold = 0.5
-    confidence_threshold = 0.8
+    support_threshold = 0.55
+    confidence_threshold = 0.55
     rulesOK = False
-    while rulesOK is False:
+
+    correct_support = 1.0
+    correct_confidence = 1.0
+
+    while rulesOK is False and correct_support >= support_threshold and correct_confidence >= confidence_threshold:
         try:
-            rules = Orange.associate.AssociationRulesSparseInducer(data, support=support_threshold, confidence=confidence_threshold,
+            rules = Orange.associate.AssociationRulesSparseInducer(data, support=correct_support, confidence=correct_confidence,
                                                                    max_item_sets=100000)
-            print(len(rules))
             # Test for the number of generated rules
-            if len(rules) > 100000:
-                print(support_threshold, confidence_threshold)
-                if confidence_threshold == 1:
-                    support_threshold += 0.1
-                else:
-                    confidence_threshold += 0.1
-            else:
+            # print ("No. of Rules: %s " % len(rules))
+            if len(rules) > 10000:
+                print(correct_support, correct_confidence)
                 rulesOK = True
-        except:
-            print(support_threshold, confidence_threshold)
-            if confidence_threshold == 1:
-                support_threshold += 0.1
             else:
-                confidence_threshold += 0.1
+                # print(correct_support, correct_confidence)
+                if correct_confidence <= confidence_threshold + 0.02:
+                    correct_support -= 0.04
+                    correct_confidence = 1.0
+                else:
+                    correct_confidence -= 0.04
+        except:
+            print("%s %s from the exception" % correct_support, correct_confidence)
+            rulesOK = True
 
     # print "%4s\t %4s  %s %s" % ("AnimeId", "Lift", "Support", "Conf")
+    
     recommendations = {}
     for r in rules:
 
@@ -164,6 +168,7 @@ def get_collaborative_recommendations_per_user(user_id, k, df_user_prof_norm, df
                 break
     duration = time.time() - starting_time
     print("Rules found in %s seconds!" % duration)
+    del(rules)
     return user_recommendations
     # Orange.associate.AssociationRulesSparseInducer.get_itemsets(rules)
 
@@ -182,9 +187,9 @@ df_user_prof_norm = normalize(df_user_profiles)
 
 recommendations = {}
 
-with open('collaborative.csv', 'ab') as csv_file:
+with open('collaborativeTest.csv', 'ab') as csv_file:
     writer = csv.writer(csv_file)
-    for i in users_ids[81:83]:
+    for i in users_ids[200:500]:
         print ("Results for user %4d\t " % (i))
         rec = get_collaborative_recommendations_per_user(user_id=i, k=11, df_user_prof_norm=df_user_prof_norm, df_rating=df_rating)
         recommendations[i] = rec
